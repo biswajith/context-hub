@@ -466,6 +466,46 @@ curl -s "https://123-ABC-456.mktorest.com/rest/asset/v1/emailTemplate/1050/conte
 
 ---
 
+## Transactional Email
+
+Send a single transactional (operational) email to a specific lead. The email must be approved and marked as operational. This uses the Lead Database API base path, not the Asset API.
+
+```
+POST /rest/v1/email/{id}/send.json
+```
+
+```bash
+curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/email/1001/send.json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": [{
+      "leadId": 42,
+      "tokens": [
+        { "name": "{{my.resetLink}}", "value": "https://example.com/reset?token=abc123" },
+        { "name": "{{my.expiresIn}}", "value": "24 hours" }
+      ]
+    }]
+  }'
+```
+
+```json
+{
+  "requestId": "abc#123",
+  "success": true,
+  "result": [
+    { "id": 42, "status": "sent" }
+  ]
+}
+```
+
+- `leadId` (required) — ID of the lead to send to
+- `tokens` — optional array of My Token overrides for this send
+- The email must be approved and operational (non-marketing)
+- Max 10 leads per request
+
+---
+
 ## Common Response Patterns
 
 **Success:** `{"success": true, "result": [{...}]}`

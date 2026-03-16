@@ -1,6 +1,6 @@
 ---
 name: api
-description: "Adobe Marketo Engage REST API for marketing automation — leads, emails, forms, landing pages, programs, smart campaigns, bulk import/export, and user management"
+description: "Adobe Marketo Engage REST API for marketing automation — identity/auth, leads, emails, forms, landing pages, programs, smart campaigns, custom objects, bulk import/export, and user management"
 metadata:
   languages: "rest"
   versions: "1.0"
@@ -92,12 +92,13 @@ curl -s -H "Authorization: Bearer $TOKEN" \
 
 ## API Domains
 
-The Marketo API is organized into four service areas:
+The Marketo API is organized into five service areas:
 
 | Domain | Base Path | Description |
 |--------|-----------|-------------|
+| **Identity API** | `/identity/` | OAuth 2.0 token endpoint, authentication |
 | **Asset API** | `/rest/asset/v1/` | Emails, email templates, forms, landing pages, snippets, programs, smart campaigns, channels, folders, tokens, files |
-| **Lead Database API** | `/rest/v1/` | Leads, companies, opportunities, activities, custom objects, named accounts, static lists |
+| **Lead Database API** | `/rest/v1/` | Leads, companies, opportunities, activities, custom objects, custom activity types, named accounts, static lists, transactional email send |
 | **Bulk API** | `/bulk/v1/` | High-volume import/export for leads, activities, custom objects, program members |
 | **User Management** | `/userservice/management/v1/` | Users, roles, workspaces |
 
@@ -154,10 +155,11 @@ curl -s -X POST "https://{munchkin-id}.mktorest.com/rest/v1/campaigns/1001/trigg
 
 Detailed endpoint documentation by domain:
 
-- [Leads & Companies](references/leads.md) — lead CRUD, list membership, activities, companies, opportunities
-- [Emails & Email Templates](references/emails.md) — email assets, content sections, modules, templates
+- [Identity & Authentication](references/identity.md) — OAuth setup, token lifecycle, permissions, rate limits
+- [Leads & Companies](references/leads.md) — lead CRUD, activities, lead changes, custom activity types, companies, opportunities, field schemas, custom objects, custom object type schemas
+- [Emails & Email Templates](references/emails.md) — email assets, content sections, modules, templates, transactional email send
 - [Forms & Form Fields](references/forms.md) — form CRUD, field management, submit forms
 - [Landing Pages](references/landing-pages.md) — landing pages, templates, redirect rules, content
-- [Programs & Smart Campaigns](references/programs.md) — programs, smart campaigns, smart lists, tokens, tags
+- [Programs & Smart Campaigns](references/programs.md) — programs, smart campaigns, smart lists, tokens, tags, segments, snippets, folders, files
 - [Bulk Import/Export](references/bulk-operations.md) — high-volume lead, activity, custom object, and program member operations
 - [User Management](references/user-management.md) — users, roles, workspaces, invitations

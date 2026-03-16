@@ -192,6 +192,64 @@ curl "https://123-ABC-456.mktorest.com/rest/v1/activities/types.json" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
+### Get Lead Changes
+
+Returns data value changes and new lead activities for a set of leads.
+
+```
+GET /rest/v1/activities/leadchanges.json?nextPageToken={token}&fields={csv}&batchSize={int}&listId={int}
+```
+
+- `nextPageToken` (required) — from Get Paging Token
+- `fields` (required) — comma-separated list of fields to track changes for
+
+```bash
+curl "https://123-ABC-456.mktorest.com/rest/v1/activities/leadchanges.json?\
+nextPageToken=WQV2VQVPPCKHC&fields=email,firstName,lastName,company&batchSize=100" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```json
+{
+  "requestId": "abc#123",
+  "success": true,
+  "moreResult": false,
+  "result": [{
+    "id": 5001,
+    "leadId": 42,
+    "activityDate": "2025-06-15T10:30:00Z",
+    "activityTypeId": 13,
+    "fields": [
+      { "id": 6, "name": "company", "newValue": "Acme Inc", "oldValue": "Acme Corp" }
+    ]
+  }]
+}
+```
+
+### Get Deleted Leads
+
+Returns leads that were deleted after a given datetime.
+
+```
+GET /rest/v1/activities/deletedleads.json?nextPageToken={token}&batchSize={int}
+```
+
+```bash
+curl "https://123-ABC-456.mktorest.com/rest/v1/activities/deletedleads.json?\
+nextPageToken=WQV2VQVPPCKHC&batchSize=100" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+```json
+{
+  "requestId": "abc#456",
+  "success": true,
+  "result": [
+    { "id": 99, "marketoGUID": "abc-def-ghi", "leadId": 99, "activityDate": "2025-06-10T08:00:00Z", "activityTypeId": 37 }
+  ]
+}
+```
+
 ### Add Custom Activities
 
 ```
@@ -211,6 +269,137 @@ curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/activities/external.json"
       "attributes": [{ "name": "plan", "value": "Pro" }]
     }]
   }'
+```
+
+### Custom Activity Types
+
+Manage custom activity type definitions. Requires **Read-Write Activity Metadata** permission.
+
+**Create Custom Activity Type:**
+
+```bash
+curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/activities/external/type.json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "apiName": "myCustomActivity",
+    "name": "My Custom Activity",
+    "description": "Tracks custom user events",
+    "primaryAttribute": {
+      "name": "Event Name",
+      "apiName": "eventName",
+      "dataType": "string"
+    }
+  }'
+```
+
+**Get Custom Activity Types:**
+
+```bash
+curl "https://123-ABC-456.mktorest.com/rest/v1/activities/external/types.json" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Describe Custom Activity Type:**
+
+```bash
+curl "https://123-ABC-456.mktorest.com/rest/v1/activities/external/type/myCustomActivity/describe.json" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Add Attributes to Custom Activity Type:**
+
+```bash
+curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/activities/external/type/myCustomActivity/attributes/create.json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "attributes": [
+      { "name": "Plan Name", "apiName": "planName", "dataType": "string" },
+      { "name": "Amount", "apiName": "amount", "dataType": "integer" }
+    ]
+  }'
+```
+
+**Approve Custom Activity Type:**
+
+```bash
+curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/activities/external/type/myCustomActivity/approve.json" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Other operations: `POST .../update.json` (update type), `POST .../attributes/update.json`, `POST .../attributes/delete.json`, `POST .../delete.json`, `POST .../discardDraft.json`.
+
+---
+
+## Lead Field Schema
+
+Manage lead field definitions. Requires **Read-Write Schema Custom Field** permission.
+
+### Get Lead Fields
+
+```bash
+curl "https://123-ABC-456.mktorest.com/rest/v1/leads/schema/fields.json?batchSize=300" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+Returns all lead fields with `id`, `displayName`, `dataType`, `rest.name` (API name), `rest.readOnly`, `soap.name`, and `soap.readOnly`.
+
+### Get Lead Field by Name
+
+```bash
+curl "https://123-ABC-456.mktorest.com/rest/v1/leads/schema/fields/company.json" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### Create Lead Field
+
+```bash
+curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/leads/schema/fields.json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": [{
+      "displayName": "Favorite Color",
+      "dataType": "string",
+      "name": "favoriteColor",
+      "description": "Lead preferred color"
+    }]
+  }'
+```
+
+### Update Lead Field
+
+```bash
+curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/leads/schema/fields/favoriteColor.json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": [{
+      "displayName": "Preferred Color",
+      "description": "Updated description"
+    }]
+  }'
+```
+
+### Company Fields
+
+```bash
+# List all company fields
+curl "https://123-ABC-456.mktorest.com/rest/v1/companies/schema/fields.json" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Get specific company field
+curl "https://123-ABC-456.mktorest.com/rest/v1/companies/schema/fields/annualRevenue.json" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### Opportunity Fields
+
+```bash
+# List all opportunity fields
+curl "https://123-ABC-456.mktorest.com/rest/v1/opportunities/schema/fields.json" \
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
@@ -433,6 +622,75 @@ curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/customobjects/car_c.json"
     "dedupeBy": "dedupeFields",
     "input": [{ "leadId": 42, "vin": "1HGCM82633A004352", "make": "Honda", "model": "Accord" }]
   }'
+```
+
+### Custom Object Type Schema
+
+Manage custom object type definitions (create/modify the object schema itself). Requires **Read-Write Custom Object Type** permission.
+
+```bash
+# List custom object types
+curl "https://123-ABC-456.mktorest.com/rest/v1/customobjects/schema.json" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Describe a custom object type
+curl "https://123-ABC-456.mktorest.com/rest/v1/customobjects/schema/car_c/describe.json" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Get linkable objects (for relationship fields)
+curl "https://123-ABC-456.mktorest.com/rest/v1/customobjects/schema/linkableObjects.json" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Get available field data types
+curl "https://123-ABC-456.mktorest.com/rest/v1/customobjects/schema/fieldDataTypes.json" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Get dependent assets for a custom object type
+curl "https://123-ABC-456.mktorest.com/rest/v1/customobjects/schema/car_c/dependentAssets.json" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+**Create Custom Object Type:**
+
+```bash
+curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/customobjects/schema.json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "action": "createOnly",
+    "displayName": "Car",
+    "apiName": "car_c",
+    "description": "Tracks cars owned by leads",
+    "pluralName": "Cars",
+    "showInLeadDetail": true
+  }'
+```
+
+**Add Fields / Approve / Delete / Discard Draft:**
+
+```bash
+# Add fields
+curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/customobjects/schema/car_c/addField.json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input": [
+      { "displayName": "VIN", "name": "vin", "dataType": "string", "isDedupeField": true },
+      { "displayName": "Make", "name": "make", "dataType": "string" }
+    ]
+  }'
+
+# Approve (required before syncing data)
+curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/customobjects/schema/car_c/approve.json" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Delete type
+curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/customobjects/schema/car_c/delete.json" \
+  -H "Authorization: Bearer $TOKEN"
+
+# Discard draft changes
+curl -X POST "https://123-ABC-456.mktorest.com/rest/v1/customobjects/schema/car_c/discardDraft.json" \
+  -H "Authorization: Bearer $TOKEN"
 ```
 
 ---
